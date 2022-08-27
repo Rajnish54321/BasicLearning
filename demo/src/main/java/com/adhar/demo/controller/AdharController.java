@@ -51,17 +51,27 @@ public class AdharController {
 	}
 
 	@DeleteMapping("/remove-adhar")
-	public ResponseEntity<Object> deleteAdhar(@RequestParam Long adharNumber) {
+	public ResponseEntity<Object> deleteAdhar(@RequestParam int adharNumber) {
 		String response = adharService.disableAdhar(adharNumber);
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 
 	}
 
 	@GetMapping("/getAdharByAdharNumber/{adharNumber}")
-	public ResponseEntity<Object> getAdharByAdharNumber(@PathVariable Long adharNumber) {
+	public ResponseEntity<Object> getAdharByAdharNumber(@PathVariable int adharNumber) {
 		Adhar adhar = adharService.getAdharByAdharNumber(adharNumber);
 		if (adhar == null) {
 			return new ResponseEntity<Object>("Adhar details not present with this adhar number " + adharNumber,
+					HttpStatus.OK);
+		}
+		return new ResponseEntity<Object>(adhar, HttpStatus.OK);
+	}
+
+	@GetMapping("/getAdharByAdharName/{name}")
+	public ResponseEntity<Object> getAdharByAdharName(@PathVariable String name) {
+		List<Adhar> adhar = adharService.getByAdharName(name);
+		if (adhar.isEmpty()) {
+			return new ResponseEntity<Object>("Adhar details not present with this adhar number " + name,
 					HttpStatus.OK);
 		}
 		return new ResponseEntity<Object>(adhar, HttpStatus.OK);

@@ -6,20 +6,25 @@ public class Adhar implements Serializable {
 
 	private static final long serialVersionUID = 2581539018206785713L;
 
-	private Long adharNumber;
+	private int adharNumber;
 	private String name;
 
-	public Adhar(Long adharNumber, String name) {
+	public Adhar() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Adhar(int adharNumber, String name) {
 		super();
 		this.adharNumber = adharNumber;
 		this.name = name;
 	}
 
-	public Long getAdharNumber() {
+	public int getAdharNumber() {
 		return adharNumber;
 	}
 
-	public void setAdharNumber(Long adharNumber) {
+	public void setAdharNumber(int adharNumber) {
 		this.adharNumber = adharNumber;
 	}
 

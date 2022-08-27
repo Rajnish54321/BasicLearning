@@ -1,30 +1,51 @@
 package com.adhar.demo.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import com.adhar.demo.dto.Adhar;
+import com.adhar.demo.entity.AdharEntity;
+import com.adhar.demo.repository.AdharRepository;
 import com.adhar.demo.service.AdharService;
 
 @Service
 public class AdharServiceImpl implements AdharService {
 
-	static final Map<Long, Adhar> localStore = new HashMap<>();
+	static final Map<Integer, Adhar> localStore = new HashMap<>();
+
+	@Autowired
+	private AdharRepository adharRepository;
 
 	@Override
 	public String createAdhar(Adhar adhar) {
-		localStore.put(adhar.getAdharNumber(), adhar);
+		// localStore.put(adhar.getAdharNumber(), adhar);
+		storeInDatabase(adhar);
 		return "Created";
+	}
+
+	private void storeInDatabase(Adhar adhar) {
+		AdharEntity entity = new AdharEntity(adhar.getAdharNumber(), adhar.getName());// here we have just created
+		adharRepository.save(entity);// to save object in data base via ORM jpa hibernate
+		entity = null;
 	}
 
 	@Override
 	public String updateAdhar(Adhar adhar) {
-		if (localStore.containsKey(adhar.getAdharNumber())) {
-			localStore.put(adhar.getAdharNumber(), adhar);
+		Optional<AdharEntity> entity = adharRepository.findByAdharNumber(adhar.getAdharNumber());
+		if (entity.isPresent()) {
+			AdharEntity en = entity.get();
+			en.setName(adhar.getName());
+			adharRepository.save(en);
 			return "Updated";
 		}
 		return "Adhar not available with this adhar number" + adhar.getAdharNumber();
@@ -32,27 +53,68 @@ public class AdharServiceImpl implements AdharService {
 	}
 
 	@Override
-	public String disableAdhar(Long adharNumber) {
-		if (localStore.containsKey(adharNumber)) {
-			localStore.remove(adharNumber);
+	@Modifying
+	@Transactional
+	public String disableAdhar(int adharNumber) {
+		Optional<AdharEntity> entity = adharRepository.findByAdharNumber(adharNumber);
+		if (entity.isPresent()) {
+			adharRepository.delete(entity.get());
 			return "Deleted";
-
 		}
 		return "Adhar not available with this adhar number" + adharNumber;
 	}
 
 	@Override
 	public Collection<Adhar> getAllAdhar() {
-
-		return localStore.values();
+		List<Adhar> adhars = new ArrayList<>();
+		List<AdharEntity> listOfAdhar = adharRepository.findAll();
+		for (AdharEntity adharEntity : listOfAdhar) {
+			Adhar adhar = new Adhar();
+			adhar.setAdharNumber(adharEntity.getAdharNumber());
+			adhar.setName(adharEntity.getName());
+			adhars.add(adhar);
+		}
+		return adhars;
 	}
 
 	@Override
-	public Adhar getAdharByAdharNumber(Long adharNumber) {
-		if (localStore.containsKey(adharNumber)) {
-			return localStore.get(adharNumber);
+	public Adhar getAdharByAdharNumber(int adharNumber) {
+		Optional<AdharEntity> entity = adharRepository.findByAdharNumber(adharNumber);
+		if (entity.isPresent()) {
+			Adhar adhar = new Adhar();
+			adhar.setAdharNumber(entity.get().getAdharNumber());
+			adhar.setName(entity.get().getName());
+			return adhar;
 		}
 		return null;
+	}
+
+	/**
+	 * This adhar on behalf of adhar name
+	 * 
+	 * @param adharName
+	 * @return Adhar
+	 */
+	@Override
+	public List<Adhar> getByAdharName(String adharName) {
+		List<Adhar> adhars = new ArrayList<>();
+		List<AdharEntity> entitys = adharRepository.findByName(adharName);
+		if (entitys.isEmpty()) {
+			return adhars;
+		} else {
+			for (AdharEntity adharEntity : entitys) {
+				Adhar adhar = new Adhar();
+				adhar.setAdharNumber(adharEntity.getAdharNumber());
+				adhar.setName(adharEntity.getName());
+				adhars.add(adhar);
+			}
+		}
+		return adhars;
+		/*
+		 * if (localStore.isEmpty()) { return null; } else { for (Map.Entry<Integer,
+		 * Adhar> entry : localStore.entrySet()) { Adhar adhar = entry.getValue(); if
+		 * (adhar.getName().equals(adharName)) { return adhar; } } } return null;
+		 */
 	}
 
 }
