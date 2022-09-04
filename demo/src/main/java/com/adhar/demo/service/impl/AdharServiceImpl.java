@@ -1,5 +1,6 @@
 package com.adhar.demo.service.impl;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class AdharServiceImpl implements AdharService {
 
 	@Override
 	public String createAdhar(Adhar adhar) {
+		System.err.println("dob"+adhar.getDob());
 		// localStore.put(adhar.getAdharNumber(), adhar);
 		storeInDatabase(adhar);
 		return "Created";
@@ -35,6 +37,7 @@ public class AdharServiceImpl implements AdharService {
 
 	private void storeInDatabase(Adhar adhar) {
 		AdharEntity entity = new AdharEntity(adhar.getAdharNumber(), adhar.getName());// here we have just created
+		entity.setDob(adhar.getDob());
 		adharRepository.save(entity);// to save object in data base via ORM jpa hibernate
 		entity = null;
 	}
@@ -45,6 +48,7 @@ public class AdharServiceImpl implements AdharService {
 		if (entity.isPresent()) {
 			AdharEntity en = entity.get();
 			en.setName(adhar.getName());
+			en.setDob(adhar.getDob());			
 			adharRepository.save(en);
 			return "Updated";
 		}
@@ -72,6 +76,7 @@ public class AdharServiceImpl implements AdharService {
 			Adhar adhar = new Adhar();
 			adhar.setAdharNumber(adharEntity.getAdharNumber());
 			adhar.setName(adharEntity.getName());
+			adhar.setDob(adharEntity.getDob());
 			adhars.add(adhar);
 		}
 		return adhars;
@@ -84,6 +89,7 @@ public class AdharServiceImpl implements AdharService {
 			Adhar adhar = new Adhar();
 			adhar.setAdharNumber(entity.get().getAdharNumber());
 			adhar.setName(entity.get().getName());
+			adhar.setDob(entity.get().getDob());
 			return adhar;
 		}
 		return null;
@@ -106,6 +112,7 @@ public class AdharServiceImpl implements AdharService {
 				Adhar adhar = new Adhar();
 				adhar.setAdharNumber(adharEntity.getAdharNumber());
 				adhar.setName(adharEntity.getName());
+				adhar.setDob(adharEntity.getDob());
 				adhars.add(adhar);
 			}
 		}
@@ -117,4 +124,22 @@ public class AdharServiceImpl implements AdharService {
 		 */
 	}
 
+	@Override
+	public List<Adhar> getAdharByGenderAndNameSize(Long length) {
+		List<Adhar> adhars = new ArrayList<>();
+		System.err.println("lll"+length);
+		List<AdharEntity> entitys = adharRepository.getAdharByGenderAndNameSize(length,"FEMALE");
+		if (entitys.isEmpty()) {
+			return adhars;
+		} else {
+			for (AdharEntity adharEntity : entitys) {
+				Adhar adhar = new Adhar();
+				adhar.setAdharNumber(adharEntity.getAdharNumber());
+				adhar.setName(adharEntity.getName());
+				adhar.setDob(adharEntity.getDob());
+				adhars.add(adhar);
+			}
+		}
+		return adhars;
+	}
 }

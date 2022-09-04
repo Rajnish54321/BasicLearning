@@ -76,5 +76,14 @@ public class AdharController {
 		}
 		return new ResponseEntity<Object>(adhar, HttpStatus.OK);
 	}
+	
+	@GetMapping("/getAdharByGenderAndNameSize/{length}")
+	public ResponseEntity<Object> getAdharByGenderAndNameSize(@PathVariable Long length) {
+		List<Adhar> adhar = adharService.getAdharByGenderAndNameSize(length);
+		if (adhar.isEmpty()) {
+			return new ResponseEntity<Object>("Adhar details not present",HttpStatus.OK);
+		}
+		return new ResponseEntity<Object>(adhar, HttpStatus.OK);
+	}
 
 }

@@ -61,4 +61,9 @@ public interface AdharService {
 	 * @return List<Adhar>
 	 */
 	List<Adhar> getByAdharName(String adharName);
+
+	/**
+	 * @return
+	 */
+	public List<Adhar> getAdharByGenderAndNameSize(Long length);
 }
